@@ -16,10 +16,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <jersey.version>3.1.3</jersey.version>
     </properties>
     
     <dependencies>
+        <!-- Jakarta EE Web API -->
         <dependency>
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-web-api</artifactId>
@@ -27,89 +27,42 @@
             <scope>provided</scope>
         </dependency>
         
-        <!-- MySQL Connector -->
+        <!-- Jersey for RESTful Web Services -->
         <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <version>8.0.33</version>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet</artifactId>
+            <version>3.1.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+            <version>3.1.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <version>3.1.3</version>
         </dependency>
         
-        <!-- BCrypt για κρυπτογράφηση -->
+        <!-- PostgreSQL JDBC Driver -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.6.0</version>
+        </dependency>
+        
+        <!-- BCrypt for Password Hashing -->
         <dependency>
             <groupId>org.mindrot</groupId>
             <artifactId>jbcrypt</artifactId>
             <version>0.4</version>
         </dependency>
         
-        <!-- JSTL -->
-        <dependency>
-            <groupId>org.glassfish.web</groupId>
-            <artifactId>jakarta.servlet.jsp.jstl</artifactId>
-            <version>3.0.1</version>
-        </dependency>
-        
-        <!-- Jersey για REST -->
-        <dependency>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet</artifactId>
-            <version>${jersey.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.media</groupId>
-            <artifactId>jersey-media-json-jackson</artifactId>
-            <version>${jersey.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-server</artifactId>
-            <version>${jersey.version}</version>
-        </dependency>
-        
-        <!-- Jersey HK2 -->
-        <dependency>
-            <groupId>org.glassfish.jersey.inject</groupId>
-            <artifactId>jersey-hk2</artifactId>
-            <version>${jersey.version}</version>
-        </dependency>
-
-        <!-- Jersey Media JSON Binding -->
-        <dependency>
-            <groupId>org.glassfish.jersey.media</groupId>
-            <artifactId>jersey-media-json-binding</artifactId>
-            <version>${jersey.version}</version>
-        </dependency>
-
-        <!-- Jersey Media MOXy -->
-        <dependency>
-            <groupId>org.glassfish.jersey.media</groupId>
-            <artifactId>jersey-media-moxy</artifactId>
-            <version>${jersey.version}</version>
-        </dependency>
-
-        <!-- Jakarta Inject -->
-        <dependency>
-            <groupId>jakarta.inject</groupId>
-            <artifactId>jakarta.inject-api</artifactId>
-            <version>2.0.1</version>
-        </dependency>
-        
         <!-- JSON Processing -->
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.10.1</version>
-        </dependency>
-        
-        <!-- JAXB για XML -->
-        <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>4.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-            <version>4.0.2</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.2</version>
         </dependency>
     </dependencies>
 

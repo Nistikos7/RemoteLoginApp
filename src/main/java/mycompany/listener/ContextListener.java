@@ -1,9 +1,6 @@
-
 package mycompany.listener;
 
-
 import com.mycompany.util.DatabaseUtil;
-import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
@@ -21,7 +18,7 @@ public class ContextListener implements ServletContextListener {
         // Καθαρίστε τους πόρους
         DatabaseUtil.shutdownThreadPool();
         
-        // Σταματήστε το AbandonedConnectionCleanupThread της MySQL
-        AbandonedConnectionCleanupThread.checkedShutdown();
+        // Δεν χρειάζεται πλέον το AbandonedConnectionCleanupThread 
+        // καθώς χρησιμοποιούμε PostgreSQL
     }
 }

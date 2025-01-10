@@ -16,11 +16,11 @@ public class DatabaseUtil {
     // Χρήση environment variables με fallback σε local values
     private static final String URL = System.getenv("DATABASE_URL") != null ? 
             System.getenv("DATABASE_URL") : 
-            "jdbc:mysql://localhost:3305/remote_login";
+            "jdbc:postgresql://localhost:5432/remote_login";
             
     private static final String USER = System.getenv("DATABASE_USER") != null ? 
             System.getenv("DATABASE_USER") : 
-            "root";
+            "postgres";
             
     private static final String PASSWORD = System.getenv("DATABASE_PASSWORD") != null ? 
             System.getenv("DATABASE_PASSWORD") : 
@@ -40,12 +40,12 @@ public class DatabaseUtil {
         monitorThread.setDaemon(true);
         monitorThread.start();
         
-        // Φόρτωση του JDBC driver
+        // Φόρτωση του PostgreSQL driver
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            LOGGER.info("MySQL JDBC Driver loaded successfully");
+            Class.forName("org.postgresql.Driver");
+            LOGGER.info("PostgreSQL JDBC Driver loaded successfully");
         } catch (ClassNotFoundException e) {
-            LOGGER.severe("Error loading MySQL JDBC driver: " + e.getMessage());
+            LOGGER.severe("Error loading PostgreSQL JDBC driver: " + e.getMessage());
         }
     }
     
