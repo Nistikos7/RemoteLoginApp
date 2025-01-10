@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 public class DatabaseUtil {
     // Χρήση environment variables με fallback σε local values
     private static final String URL = System.getenv("DATABASE_URL") != null ? 
-            System.getenv("DATABASE_URL").replace("postgresql://", "jdbc:postgresql://") : 
+            formatDatabaseUrl(System.getenv("DATABASE_URL")) : 
             "jdbc:postgresql://localhost:5432/remote_login";
             
     private static final String USER = System.getenv("DATABASE_USER") != null ? 
@@ -33,6 +33,29 @@ public class DatabaseUtil {
     
     private static final ThreadMonitor monitor = 
         new ThreadMonitor(threadPool, 60); // Έλεγχος κάθε 60 δευτερόλεπτα
+    
+    // Προσθήκη νέας μεθόδου για τη μορφοποίηση του URL
+    private static String formatDatabaseUrl(String url) {
+        // Αφαίρεση του "postgresql://" αν υπάρχει
+        url = url.replace("postgresql://", "");
+        
+        // Διαχωρισμός των credentials από το host
+        String[] parts = url.split("@");
+        if (parts.length != 2) {
+            return url;
+        }
+        
+        // Διαχωρισμός username:password
+        String[] credentials = parts[0].split(":");
+        String username = credentials[0];
+        String password = credentials[1];
+        
+        // Το υπόλοιπο URL
+        String hostPart = parts[1];
+        
+        return String.format("jdbc:postgresql://%s?user=%s&password=%s", 
+                hostPart, username, password);
+    }
     
     static {
         // Εκκίνηση του thread monitor
