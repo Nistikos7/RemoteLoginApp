@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 public class DatabaseUtil {
     // Χρήση environment variables με fallback σε local values
     private static final String URL = System.getenv("DATABASE_URL") != null ? 
-            System.getenv("DATABASE_URL") : 
+            System.getenv("DATABASE_URL").replace("postgresql://", "jdbc:postgresql://") : 
             "jdbc:postgresql://localhost:5432/remote_login";
             
     private static final String USER = System.getenv("DATABASE_USER") != null ? 
@@ -44,6 +44,7 @@ public class DatabaseUtil {
         try {
             Class.forName("org.postgresql.Driver");
             LOGGER.info("PostgreSQL JDBC Driver loaded successfully");
+            LOGGER.info("Database URL: " + URL); // Προσθήκη logging για το URL
         } catch (ClassNotFoundException e) {
             LOGGER.severe("Error loading PostgreSQL JDBC driver: " + e.getMessage());
         }
