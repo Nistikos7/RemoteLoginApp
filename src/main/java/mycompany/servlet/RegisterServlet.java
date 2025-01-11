@@ -11,28 +11,22 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-// ... υπάρχοντα imports ...
 
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
     private static final Logger LOGGER = Logger.getLogger(RegisterServlet.class.getName());
     private final UserDAO userDAO = new UserDAO();
 
-    // Μέθοδος ελέγχου εγκυρότητας κωδικού
     private boolean isValidPassword(String password) {
-        // Τουλάχιστον 5 χαρακτήρες
         if (password.length() < 5) {
             return false;
         }
-        
-        // Τουλάχιστον 1 αριθμό
         if (!password.matches(".*\\d.*")) {
             return false;
         }
-        
         return true;
     }
 
@@ -68,6 +62,43 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
-        // ... υπόλοιπος κώδικας ...
+        try {
+            // Create user object
+            User user = new User();
+            user.setUsername(username);
+            user.setPassword(password);
+            user.setEmail(email);
+
+            // Submit registration task
+            Future<Boolean> future = DatabaseUtil.getThreadPool()
+                    .submit(new RegisterTask(user, userDAO));
+
+            if (future.get()) {
+                // Successful registration
+                LOGGER.log(Level.INFO, "User registered successfully: {0}", username);
+                
+                // Αυτόματο login
+                HttpSession session = request.getSession();
+                session.setAttribute("user", user);
+                session.setAttribute("username", username);
+                
+                // Ανακατεύθυνση στο dashboard
+                response.sendRedirect("dashboard.jsp");
+            } else {
+                // Failed registration
+                request.setAttribute("error", "Username or email already exists");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error during registration: " + e.getMessage(), e);
+            request.setAttribute("error", "Registration failed. Please try again.");
+            request.getRequestDispatcher("register.jsp").forward(request, response);
+        }
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        request.getRequestDispatcher("register.jsp").forward(request, response);
     }
 }
