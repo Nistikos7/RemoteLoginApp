@@ -48,9 +48,36 @@
             font-weight: bold;
             margin-bottom: 2rem;
         }
+
+        .header-logo {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            text-align: right;
+        }
+        
+        .header-logo img {
+            width: 150px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        
+        .header-text {
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
+    <div class="header-logo">
+        <img src="images/pada.jpg" alt="University of West Attica Logo">
+        <div class="header-text">
+            ΔΙΚΤΥΑΚΟΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ<br>
+            ΕΡΓΑΣΙΑ 2024-2025
+        </div>
+    </div>
+
     <div class="container d-flex align-items-center justify-content-center" style="height: 100vh;">
         <div class="login-container">
             <div class="text-center mb-4">
