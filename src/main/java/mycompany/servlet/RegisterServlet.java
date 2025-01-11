@@ -30,6 +30,11 @@ public class RegisterServlet extends HttpServlet {
         return true;
     }
 
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        return email.matches(emailRegex);
+    }
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
@@ -44,6 +49,13 @@ public class RegisterServlet extends HttpServlet {
             password == null || password.trim().isEmpty() || 
             email == null || email.trim().isEmpty()) {
             request.setAttribute("error", "All fields are required");
+            request.getRequestDispatcher("register.jsp").forward(request, response);
+            return;
+        }
+
+        // Email validation
+        if (!isValidEmail(email)) {
+            request.setAttribute("error", "Please enter a valid email address");
             request.getRequestDispatcher("register.jsp").forward(request, response);
             return;
         }

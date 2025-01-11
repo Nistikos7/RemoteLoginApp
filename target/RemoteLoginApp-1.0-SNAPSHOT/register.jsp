@@ -105,6 +105,7 @@
                 <div class="mb-3">
                     <label for="email" class="form-label">Email</label>
                     <input type="email" class="form-control" id="email" name="email" required>
+                    <div id="emailRequirements" class="text-danger password-requirements"></div>
                 </div>
                 
                 <div class="mb-3">
@@ -137,11 +138,24 @@
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        function isValidEmail(email) {
+            const emailRegex = /^[A-Za-z0-9+_.-]+@(.+)$/;
+            return emailRegex.test(email);
+        }
+
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
+            const email = document.getElementById('email').value;
             
-            // Έλεγχος μήκους
+            // Email validation
+            if (!isValidEmail(email)) {
+                e.preventDefault();
+                alert('Please enter a valid email address');
+                return;
+            }
+            
+            // Έλεγχος μήκους password
             if (password.length < 5) {
                 e.preventDefault();
                 alert('Password must be at least 5 characters long');
@@ -160,6 +174,19 @@
                 e.preventDefault();
                 alert('Passwords do not match!');
                 return;
+            }
+        });
+
+        // Real-time email validation
+        document.getElementById('email').addEventListener('input', function() {
+            const email = this.value;
+            const emailRequirements = document.getElementById('emailRequirements');
+            
+            if (!isValidEmail(email) && email.length > 0) {
+                emailRequirements.textContent = 'Please enter a valid email address (example@domain.com)';
+                emailRequirements.className = 'text-danger password-requirements';
+            } else {
+                emailRequirements.textContent = '';
             }
         });
 
