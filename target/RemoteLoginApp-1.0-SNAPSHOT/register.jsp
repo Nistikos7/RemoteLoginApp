@@ -48,9 +48,41 @@
             font-weight: bold;
             margin-bottom: 2rem;
         }
+
+        .header-logo {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            text-align: right;
+        }
+        
+        .header-logo img {
+            width: 150px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        
+        .header-text {
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .password-requirements {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
     </style>
 </head>
 <body>
+    <div class="header-logo">
+        <img src="images/pada.jpg" alt="University of West Attica Logo">
+        <div class="header-text">
+            ΔΙΚΤΥΑΚΟΣ ΠΡΟΓΡΑΜΜΑΤΙΣΜΟΣ<br>
+            ΕΡΓΑΣΙΑ 2024-2025
+        </div>
+    </div>
+
     <div class="container d-flex align-items-center justify-content-center" style="height: 100vh;">
         <div class="register-container">
             <div class="text-center mb-4">
@@ -78,6 +110,10 @@
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
                     <input type="password" class="form-control" id="password" name="password" required>
+                    <small class="text-muted password-requirements">
+                        Password must be at least 5 characters long and contain at least one number
+                    </small>
+                    <div id="passwordRequirements" class="text-danger password-requirements"></div>
                 </div>
                 
                 <div class="mb-3">
@@ -105,10 +141,42 @@
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             
+            // Έλεγχος μήκους
+            if (password.length < 5) {
+                e.preventDefault();
+                alert('Password must be at least 5 characters long');
+                return;
+            }
+            
+            // Έλεγχος για αριθμό
+            if (!/\d/.test(password)) {
+                e.preventDefault();
+                alert('Password must contain at least one number');
+                return;
+            }
+            
+            // Έλεγχος ταιριάσματος κωδικών
             if (password !== confirmPassword) {
                 e.preventDefault();
                 alert('Passwords do not match!');
+                return;
             }
+        });
+
+        // Real-time password validation
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            let message = '';
+            
+            if (password.length < 5) {
+                message += 'Password must be at least 5 characters long\n';
+            }
+            if (!/\d/.test(password)) {
+                message += 'Password must contain at least one number\n';
+            }
+            
+            // Update password requirements message
+            document.getElementById('passwordRequirements').textContent = message;
         });
     </script>
 </body>

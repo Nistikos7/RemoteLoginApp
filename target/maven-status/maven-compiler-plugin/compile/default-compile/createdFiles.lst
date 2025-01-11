@@ -4,7 +4,6 @@ com\mycompany\remoteloginapp\resources\JakartaEE11Resource.class
 mycompany\task\LoginTask.class
 com\mycompany\util\SecurityUtil.class
 com\mycompany\rest\LoginResource.class
-com\mycompany\servlet\LogoutServlet.class
 com\mycompany\task\RegisterTask.class
 mycompany\listener\ContextListener.class
 com\mycompany\filter\CORSFilter.class
@@ -17,6 +16,7 @@ com\mycompany\remoteloginapp\JakartaRestConfiguration.class
 com\mycompany\rest\UserResource.class
 com\mycompany\filter\AutoFilter.class
 com\mycompany\util\ThreadMonitor.class
+mycompany\servlet\LogoutServlet.class
 com\mycompany\servlet\RegisterServlet.class
 com\mycompany\model\ApiResponse.class
 com\mycompany\model\LoginRequest.class
