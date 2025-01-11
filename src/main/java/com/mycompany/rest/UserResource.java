@@ -5,14 +5,17 @@ import com.mycompany.model.User;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class UserResource {
-    
+    private static final Logger LOGGER = Logger.getLogger(UserResource.class.getName());
     private final UserDAO userDAO = new UserDAO();
     
     @GET
@@ -26,15 +29,21 @@ public class UserResource {
     @GET
     @Path("/{username}")
     public Response getUser(@PathParam("username") String username) {
-        User user = userDAO.getUserByUsername(username);
-        if (user != null) {
-            // Αφαιρούμε τον κωδικό για ασφάλεια
-            user.setPassword(null);
-            return Response.ok(user).build();
+        try {
+            User user = userDAO.getUserByUsername(username);
+            if (user != null) {
+                user.setPassword(null); // Αφαιρούμε τον κωδικό για ασφάλεια
+                return Response.ok(user).build();
+            }
+            return Response.status(Response.Status.NOT_FOUND)
+                          .entity("User not found")
+                          .build();
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error getting user: " + e.getMessage(), e);
+            return Response.serverError()
+                          .entity("Database error")
+                          .build();
         }
-        return Response.status(Response.Status.NOT_FOUND)
-                      .entity("User not found")
-                      .build();
     }
     
     @POST
@@ -64,10 +73,11 @@ public class UserResource {
                              .entity("Registration failed")
                              .build();
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error during registration: " + e.getMessage(), e);
             return Response.serverError()
-                         .entity("Error: " + e.getMessage())
-                         .build();
+                          .entity("Database error")
+                          .build();
         }
     }
     
@@ -99,10 +109,11 @@ public class UserResource {
                              .entity("Invalid credentials")
                              .build();
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error during login: " + e.getMessage(), e);
             return Response.serverError()
-                         .entity("Error: " + e.getMessage())
-                         .build();
+                          .entity("Database error")
+                          .build();
         }
     }
     
@@ -126,10 +137,11 @@ public class UserResource {
                              .entity("User not found")
                              .build();
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error updating user: " + e.getMessage(), e);
             return Response.serverError()
-                         .entity("Error: " + e.getMessage())
-                         .build();
+                          .entity("Database error")
+                          .build();
         }
     }
 }

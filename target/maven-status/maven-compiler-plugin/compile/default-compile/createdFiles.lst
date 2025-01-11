@@ -2,6 +2,7 @@ com\mycompany\rest\RemoteAuthResource.class
 com\mycompany\util\DatabaseUtil.class
 com\mycompany\remoteloginapp\resources\JakartaEE11Resource.class
 mycompany\task\LoginTask.class
+com\mycompany\util\SecurityUtil.class
 com\mycompany\rest\LoginResource.class
 com\mycompany\servlet\LogoutServlet.class
 com\mycompany\task\RegisterTask.class

@@ -5,6 +5,7 @@
 package mycompany.task;
 
 import com.mycompany.dao.UserDAO;
+import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
 public class LoginTask implements Callable<Boolean> {
@@ -19,7 +20,7 @@ public class LoginTask implements Callable<Boolean> {
     }
     
     @Override
-    public Boolean call() {
+    public Boolean call() throws SQLException {
         return userDAO.validateUser(username, password);
     }
 }
