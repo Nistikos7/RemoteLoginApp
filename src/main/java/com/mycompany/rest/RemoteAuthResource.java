@@ -28,9 +28,8 @@ public class RemoteAuthResource {
                              .build();
             }
             
-            boolean isValid = userDAO.validateUser(username, password);
-            if (isValid) {
-                User user = userDAO.getUserByUsername(username);
+            User user = userDAO.validateUser(username, password);
+            if (user != null) {
                 user.setPassword(null); // Για ασφάλεια
                 
                 Map<String, Object> response = new HashMap<>();

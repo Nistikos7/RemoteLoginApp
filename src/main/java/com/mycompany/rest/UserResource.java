@@ -94,9 +94,8 @@ public class UserResource {
         }
         
         try {
-            boolean isValid = userDAO.validateUser(username, password);
-            if (isValid) {
-                User user = userDAO.getUserByUsername(username);
+            User user = userDAO.validateUser(username, password);
+            if (user != null) {
                 user.setPassword(null); // Αφαιρούμε τον κωδικό για ασφάλεια
                 
                 Map<String, Object> response = new HashMap<>();

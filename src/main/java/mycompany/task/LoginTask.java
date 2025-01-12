@@ -1,10 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package mycompany.task;
 
 import com.mycompany.dao.UserDAO;
+import com.mycompany.model.User;
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
 
@@ -21,6 +18,7 @@ public class LoginTask implements Callable<Boolean> {
     
     @Override
     public Boolean call() throws SQLException {
-        return userDAO.validateUser(username, password);
+        User user = userDAO.validateUser(username, password);
+        return user != null;
     }
 }

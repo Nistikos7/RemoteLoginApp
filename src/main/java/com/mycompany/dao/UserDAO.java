@@ -6,77 +6,105 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.mindrot.jbcrypt.BCrypt;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 public class UserDAO {
     private static final Logger LOGGER = Logger.getLogger(UserDAO.class.getName());
-    
-    public boolean validateUser(String username, String password) throws SQLException {
-        String sql = "SELECT password FROM users WHERE username = ?";
-        try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            LOGGER.info("Attempting login for user: " + username);
-            
-            pstmt.setString(1, username);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    String storedPassword = rs.getString("password");
-                    
-                    // Αν ο κωδικός δεν είναι κρυπτογραφημένος
-                    if (!storedPassword.startsWith("$2a$")) {
-                        LOGGER.warning("Password not hashed for user: " + username);
-                        return password.equals(storedPassword);
-                    }
-                    
-                    return BCrypt.checkpw(password, storedPassword);
-                }
-            }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error validating user: " + e.getMessage(), e);
-            throw e;
-        }
-        return false;
-    }
 
     public boolean registerUser(User user) throws SQLException {
-        String sql = "INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)";
+        if (usernameExists(user.getUsername()) || emailExists(user.getEmail())) {
+            return false;
+        }
+
+        String sql = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+        
         try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            LOGGER.info("Registering new user: " + user.getUsername());
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
             
-            pstmt.setString(1, user.getUsername());
-            pstmt.setString(2, hashedPassword);
-            pstmt.setString(3, user.getEmail());
-            pstmt.setString(4, "USER"); // Default role
+            stmt.setString(1, user.getUsername());
+            stmt.setString(2, hashedPassword);
+            stmt.setString(3, user.getEmail());
             
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error registering user: " + e.getMessage(), e);
-            throw e;
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
         }
     }
 
-    // ... υπόλοιπες μέθοδοι παραμένουν ίδιες με proper logging ...
+    public User validateUser(String username, String password) throws SQLException {
+        String sql = "SELECT * FROM users WHERE username = ?";
+        
+        try (Connection conn = DatabaseUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, username);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String storedHash = rs.getString("password");
+                    
+                    if (BCrypt.checkpw(password, storedHash)) {
+                        User user = new User();
+                        user.setId(rs.getInt("id"));
+                        user.setUsername(rs.getString("username"));
+                        user.setEmail(rs.getString("email"));
+                        return user;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public User getUserByUsername(String username) throws SQLException {
+        String sql = "SELECT * FROM users WHERE username = ?";
+        
+        try (Connection conn = DatabaseUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, username);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    User user = new User();
+                    user.setId(rs.getInt("id"));
+                    user.setUsername(rs.getString("username"));
+                    user.setEmail(rs.getString("email"));
+                    return user;
+                }
+            }
+        }
+        return null;
+    }
+
+    public boolean updateUser(User user) throws SQLException {
+        String sql = "UPDATE users SET email = ? WHERE username = ?";
+        
+        try (Connection conn = DatabaseUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, user.getEmail());
+            stmt.setString(2, user.getUsername());
+            
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
     public boolean usernameExists(String username) throws SQLException {
         String sql = "SELECT COUNT(*) FROM users WHERE username = ?";
         try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            pstmt.setString(1, username);
-            try (ResultSet rs = pstmt.executeQuery()) {
+            stmt.setString(1, username);
+            try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1) > 0;
                 }
             }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error checking username: " + e.getMessage(), e);
-            throw e;
         }
         return false;
     }
@@ -84,73 +112,15 @@ public class UserDAO {
     public boolean emailExists(String email) throws SQLException {
         String sql = "SELECT COUNT(*) FROM users WHERE email = ?";
         try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            pstmt.setString(1, email);
-            try (ResultSet rs = pstmt.executeQuery()) {
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1) > 0;
                 }
             }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error checking email: " + e.getMessage(), e);
-            throw e;
         }
         return false;
-    }
-    
-    public User getUserByUsername(String username) throws SQLException {
-        String sql = "SELECT * FROM users WHERE username = ?";
-        try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, username);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    User user = new User();
-                    user.setId(rs.getInt("id"));
-                    user.setUsername(rs.getString("username"));
-                    user.setEmail(rs.getString("email"));
-                    user.setRole(rs.getString("role"));
-                    return user;
-                }
-            }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error getting user: " + e.getMessage(), e);
-            throw e;
-        }
-        return null;
-    }
-    
-    public boolean updateUser(User user) throws SQLException {
-        String sql = "UPDATE users SET email = ? WHERE username = ?";
-        try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, user.getEmail());
-            pstmt.setString(2, user.getUsername());
-            
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error updating user: " + e.getMessage(), e);
-            throw e;
-        }
-    }
-    
-    public boolean updatePassword(String username, String newPassword) throws SQLException {
-        String sql = "UPDATE users SET password = ? WHERE username = ?";
-        try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
-            
-            pstmt.setString(1, hashedPassword);
-            pstmt.setString(2, username);
-            
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error updating password: " + e.getMessage(), e);
-            throw e;
-        }
     }
 }

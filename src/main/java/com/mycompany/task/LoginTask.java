@@ -18,13 +18,14 @@ public class LoginTask implements Callable<Boolean> {
         this.userDAO = userDAO;
     }
     
-    @Override
-    public Boolean call() {
-        try {
-            return userDAO.validateUser(username, password);
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error during login validation: " + e.getMessage(), e);
-            return false;
-        }
+  @Override
+public Boolean call() {
+    try {
+        return userDAO.validateUser(username, password) != null;
+    } catch (SQLException e) {
+        LOGGER.log(Level.SEVERE, "Error validating user", e);
+        return false;
     }
+}
+
 }

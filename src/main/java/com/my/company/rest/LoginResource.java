@@ -1,4 +1,4 @@
-package com.mycompany.rest;
+package com.my.company.rest;
 
 import com.mycompany.dao.UserDAO;
 import com.mycompany.model.User;
@@ -21,10 +21,9 @@ public class LoginResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response login(LoginRequest loginRequest) {
         try {
-            // Χρησιμοποιούμε τη validateUser αντί της findByUsername
-            boolean isValid = userDAO.validateUser(loginRequest.getUsername(), loginRequest.getPassword());
+            User user = userDAO.validateUser(loginRequest.getUsername(), loginRequest.getPassword());
             
-            if (isValid) {
+            if (user != null) {
                 return Response
                     .ok(new ApiResponse("success", "Login successful"))
                     .build();

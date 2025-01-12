@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,37 +45,51 @@ public class RegisterServlet extends HttpServlet {
         String confirmPassword = request.getParameter("confirmPassword");
         String email = request.getParameter("email");
 
-        // Validation
-        if (username == null || username.trim().isEmpty() || 
-            password == null || password.trim().isEmpty() || 
-            email == null || email.trim().isEmpty()) {
-            request.setAttribute("error", "All fields are required");
-            request.getRequestDispatcher("register.jsp").forward(request, response);
-            return;
-        }
-
-        // Email validation
-        if (!isValidEmail(email)) {
-            request.setAttribute("error", "Please enter a valid email address");
-            request.getRequestDispatcher("register.jsp").forward(request, response);
-            return;
-        }
-
-        // Password validation
-        if (!isValidPassword(password)) {
-            request.setAttribute("error", "Password must be at least 5 characters long and contain at least one number");
-            request.getRequestDispatcher("register.jsp").forward(request, response);
-            return;
-        }
-
-        // Password confirmation check
-        if (!password.equals(confirmPassword)) {
-            request.setAttribute("error", "Passwords do not match");
-            request.getRequestDispatcher("register.jsp").forward(request, response);
-            return;
-        }
-
         try {
+            // Check if username exists
+            if (userDAO.usernameExists(username)) {
+                request.setAttribute("error", "Username already exists. Please choose a different username.");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
+            }
+
+            // Check if email exists
+            if (userDAO.emailExists(email)) {
+                request.setAttribute("error", "Email already registered. Please use a different email address.");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
+            }
+
+            // Validation
+            if (username == null || username.trim().isEmpty() || 
+                password == null || password.trim().isEmpty() || 
+                email == null || email.trim().isEmpty()) {
+                request.setAttribute("error", "All fields are required");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
+            }
+
+            // Email validation
+            if (!isValidEmail(email)) {
+                request.setAttribute("error", "Please enter a valid email address");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
+            }
+
+            // Password validation
+            if (!isValidPassword(password)) {
+                request.setAttribute("error", "Password must be at least 5 characters long and contain at least one number");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
+            }
+
+            // Password confirmation check
+            if (!password.equals(confirmPassword)) {
+                request.setAttribute("error", "Passwords do not match");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
+            }
+
             // Create user object
             User user = new User();
             user.setUsername(username);
@@ -98,9 +113,14 @@ public class RegisterServlet extends HttpServlet {
                 response.sendRedirect("dashboard.jsp");
             } else {
                 // Failed registration
-                request.setAttribute("error", "Username or email already exists");
+                request.setAttribute("error", "Registration failed. Please try again.");
                 request.getRequestDispatcher("register.jsp").forward(request, response);
             }
+            
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Database error during registration: " + e.getMessage(), e);
+            request.setAttribute("error", "An error occurred. Please try again later.");
+            request.getRequestDispatcher("register.jsp").forward(request, response);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error during registration: " + e.getMessage(), e);
             request.setAttribute("error", "Registration failed. Please try again.");
